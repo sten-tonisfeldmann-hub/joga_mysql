@@ -42,11 +42,30 @@ app.get('/', (req, res) => {
 });
 
 app.get('/article/:slug', (req, res) => {
-    let query = 'SELECT * FROM article WHERE slug = ?';
+    let query = 'SELECT a.*, au.name AS author_name FROM article a LEFT JOIN author au ON a.author_id = au.id WHERE a.slug = ?';
     con.query(query, [req.params.slug], (err, result) => {
         if (err) throw err;
         res.render('article', {
             article: result
+        });
+    });
+});
+
+app.get('/author/:author_id', (req, res) => {
+    let authorQuery = 'SELECT * FROM author WHERE id = ?';
+    con.query(authorQuery, [req.params.author_id], (err, authorResult) => {
+        if (err) throw err;
+        if (!authorResult[0]) {
+            return res.status(404).send('Author not found');
+        }
+
+        let articlesQuery = 'SELECT * FROM article WHERE author_id = ? ORDER BY published DESC';
+        con.query(articlesQuery, [req.params.author_id], (err2, articleResult) => {
+            if (err2) throw err2;
+            res.render('author', {
+                author: authorResult[0],
+                articles: articleResult
+            });
         });
     });
 });
