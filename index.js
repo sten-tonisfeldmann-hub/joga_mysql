@@ -4,12 +4,12 @@ const app = express()
 const path = require('path')
 const hbs = require('express-handlebars')
 
-app.set('view', path.join(__dirname, 'views'));
+app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'hbs');
 app.engine('hbs', hbs.engine({
     extname: 'hbs',
     defaultLayout: 'main',
-    layoutsDir: __dirname + '/views/layouts'
+    layoutsDir: path.join(__dirname, 'views', 'layouts')
 }));
 
 app.use(express.static('public'));
@@ -31,6 +31,19 @@ con.connect((err) => {
     console.log('Connected to joga_mysql database');
 });
 
+app.get('/', (req, res) => {
+    let query = 'SELECT * FROM article';
+    let articles = [];
+    con.query(query, (err, result) => {
+        if (err) throw err;
+        articles = result;
+        console.log(articles)
+        res.render('home', {
+            articles: articles
+        });
+    });
+});
+
 app.listen(3003, () => {
-    console.log('Server is running on port 3003');
+    console.log('Server is running on http://localhost:3003');
 });
