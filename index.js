@@ -31,15 +31,15 @@ con.connect((err) => {
     console.log('Connected to joga_mysql database');
 });
 
-app.get('/', (req, res) => {
-    let query = 'SELECT * FROM article';
-    let articles = [];
+app.get('/article/:slug', (req, res) => {
+    let query = 'SELECT * FROM article WHERE slug = "${req.params.slug}"';
+    let article
     con.query(query, (err, result) => {
         if (err) throw err;
-        articles = result;
-        console.log(articles)
-        res.render('home', {
-            articles: articles
+        article = result;
+        console.log(article)
+        res.render('article', {
+            article: article
         });
     });
 });
